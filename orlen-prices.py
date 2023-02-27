@@ -110,7 +110,7 @@ class MainWindow(tk.Frame):
         data_frame.grid(row=1, column=0, columnspan=2, sticky=tk.N)
         # Show Data Table
         nametofont("TkHeadingFont").configure(weight="bold")
-        self.table = ttk.Treeview(data_frame, show="headings")
+        self.table = ttk.Treeview(data_frame, show="headings", height=25)
         scrollbar = ttk.Scrollbar(
             data_frame, orient="vertical", command=self.table.yview
         )
@@ -131,7 +131,7 @@ class MainWindow(tk.Frame):
         self.table.grid(row=0, column=0)
 
     def show_msg_label(self, root):
-        self.msg = tk.StringVar()
+        self.msg = tk.StringVar(value="OK")
         msg_label = tk.Label(root, relief="groove", anchor="w", textvariable=self.msg)
         msg_label.grid(row=3, column=0, columnspan=6, sticky="ews")
         root.grid_rowconfigure(3, weight=1)
@@ -172,7 +172,12 @@ class MainWindow(tk.Frame):
             for widget in self.chart_canvas.winfo_children():
                 widget.destroy()
         else:
-            self.msg.set("OK")
+            average_price = "%d" % chart_df["value"].mean().round()
+            max_price = chart_df["value"].max()
+            min_price = chart_df["value"].min()
+            self.msg.set(
+                f"Average price: {average_price}, Max price: {max_price}, Min price: {min_price}"
+            )
             self._set_data_table(chart_df[::-1])
             self._show_chart(root, chart_df, year, month)
 
@@ -192,8 +197,7 @@ class MainWindow(tk.Frame):
         # Show Chart Frame
         self.chart_canvas = tk.Frame(root)
         self.chart_canvas["borderwidth"] = 1
-        # self.chart_canvas['relief']='groove'
-        self.chart_canvas.grid(row=1, column=2)
+        self.chart_canvas.grid(row=1, column=2, columnspan=2)
         # Chart
         date = [str(x.date()) for x in df["effectiveDate"]]
         price = df["value"].tolist()
